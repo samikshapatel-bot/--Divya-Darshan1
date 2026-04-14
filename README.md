@@ -1,61 +1,79 @@
-# side-channel <sup>[![Version Badge][npm-version-svg]][package-url]</sup>
+# once
 
-[![github actions][actions-image]][actions-url]
-[![coverage][codecov-image]][codecov-url]
-[![License][license-image]][license-url]
-[![Downloads][downloads-image]][downloads-url]
+Only call a function once.
 
-[![npm badge][npm-badge-png]][package-url]
+## usage
 
-Store information about any JS value in a side channel. Uses WeakMap if available.
+```javascript
+var once = require('once')
 
-Warning: in an environment that lacks `WeakMap`, this implementation will leak memory until you `delete` the `key`.
-
-## Getting started
-
-```sh
-npm install --save side-channel
+function load (file, cb) {
+  cb = once(cb)
+  loader.load('file')
+  loader.once('load', cb)
+  loader.once('error', cb)
+}
 ```
 
-## Usage/Examples
+Or add to the Function.prototype in a responsible way:
 
-```js
-const assert = require('assert');
-const getSideChannel = require('side-channel');
+```javascript
+// only has to be done once
+require('once').proto()
 
-const channel = getSideChannel();
-
-const key = {};
-assert.equal(channel.has(key), false);
-assert.throws(() => channel.assert(key), TypeError);
-
-channel.set(key, 42);
-
-channel.assert(key); // does not throw
-assert.equal(channel.has(key), true);
-assert.equal(channel.get(key), 42);
-
-channel.delete(key);
-assert.equal(channel.has(key), false);
-assert.throws(() => channel.assert(key), TypeError);
+function load (file, cb) {
+  cb = cb.once()
+  loader.load('file')
+  loader.once('load', cb)
+  loader.once('error', cb)
+}
 ```
 
-## Tests
+Ironically, the prototype feature makes this module twice as
+complicated as necessary.
 
-Clone the repo, `npm install`, and run `npm test`
+To check whether you function has been called, use `fn.called`. Once the
+function is called for the first time the return value of the original
+function is saved in `fn.value` and subsequent calls will continue to
+return this value.
 
-[package-url]: https://npmjs.org/package/side-channel
-[npm-version-svg]: https://versionbadg.es/ljharb/side-channel.svg
-[deps-svg]: https://david-dm.org/ljharb/side-channel.svg
-[deps-url]: https://david-dm.org/ljharb/side-channel
-[dev-deps-svg]: https://david-dm.org/ljharb/side-channel/dev-status.svg
-[dev-deps-url]: https://david-dm.org/ljharb/side-channel#info=devDependencies
-[npm-badge-png]: https://nodei.co/npm/side-channel.png?downloads=true&stars=true
-[license-image]: https://img.shields.io/npm/l/side-channel.svg
-[license-url]: LICENSE
-[downloads-image]: https://img.shields.io/npm/dm/side-channel.svg
-[downloads-url]: https://npm-stat.com/charts.html?package=side-channel
-[codecov-image]: https://codecov.io/gh/ljharb/side-channel/branch/main/graphs/badge.svg
-[codecov-url]: https://app.codecov.io/gh/ljharb/side-channel/
-[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/ljharb/side-channel
-[actions-url]: https://github.com/ljharb/side-channel/actions
+```javascript
+var once = require('once')
+
+function load (cb) {
+  cb = once(cb)
+  var stream = createStream()
+  stream.once('data', cb)
+  stream.once('end', function () {
+    if (!cb.called) cb(new Error('not found'))
+  })
+}
+```
+
+## `once.strict(func)`
+
+Throw an error if the function is called twice.
+
+Some functions are expected to be called only once. Using `once` for them would
+potentially hide logical errors.
+
+In the example below, the `greet` function has to call the callback only once:
+
+```javascript
+function greet (name, cb) {
+  // return is missing from the if statement
+  // when no name is passed, the callback is called twice
+  if (!name) cb('Hello anonymous')
+  cb('Hello ' + name)
+}
+
+function log (msg) {
+  console.log(msg)
+}
+
+// this will print 'Hello anonymous' but the logical error will be missed
+greet(null, once(msg))
+
+// once.strict will print 'Hello anonymous' and throw an error when the callback will be called the second time
+greet(null, once.strict(msg))
+```

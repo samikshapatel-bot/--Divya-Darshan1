@@ -1,190 +1,342 @@
-"use strict";
+'use strict';
 
-// Returns "Type(value) is Object" in ES terminology.
-function isObject(value) {
-  return (typeof value === "object" && value !== null) || typeof value === "function";
-}
+var formats = require('./formats');
+var getSideChannel = require('side-channel');
 
-const hasOwn = Function.prototype.call.bind(Object.prototype.hasOwnProperty);
+var has = Object.prototype.hasOwnProperty;
+var isArray = Array.isArray;
 
-// Like `Object.assign`, but using `[[GetOwnProperty]]` and `[[DefineOwnProperty]]`
-// instead of `[[Get]]` and `[[Set]]` and only allowing objects
-function define(target, source) {
-  for (const key of Reflect.ownKeys(source)) {
-    const descriptor = Reflect.getOwnPropertyDescriptor(source, key);
-    if (descriptor && !Reflect.defineProperty(target, key, descriptor)) {
-      throw new TypeError(`Cannot redefine property: ${String(key)}`);
+// Track objects created from arrayLimit overflow using side-channel
+// Stores the current max numeric index for O(1) lookup
+var overflowChannel = getSideChannel();
+
+var markOverflow = function markOverflow(obj, maxIndex) {
+    overflowChannel.set(obj, maxIndex);
+    return obj;
+};
+
+var isOverflow = function isOverflow(obj) {
+    return overflowChannel.has(obj);
+};
+
+var getMaxIndex = function getMaxIndex(obj) {
+    return overflowChannel.get(obj);
+};
+
+var setMaxIndex = function setMaxIndex(obj, maxIndex) {
+    overflowChannel.set(obj, maxIndex);
+};
+
+var hexTable = (function () {
+    var array = [];
+    for (var i = 0; i < 256; ++i) {
+        array[array.length] = '%' + ((i < 16 ? '0' : '') + i.toString(16)).toUpperCase();
     }
-  }
-}
 
-function newObjectInRealm(globalObject, object) {
-  const ctorRegistry = initCtorRegistry(globalObject);
-  return Object.defineProperties(
-    Object.create(ctorRegistry["%Object.prototype%"]),
-    Object.getOwnPropertyDescriptors(object)
-  );
-}
+    return array;
+}());
 
-const wrapperSymbol = Symbol("wrapper");
-const implSymbol = Symbol("impl");
-const sameObjectCaches = Symbol("SameObject caches");
-const ctorRegistrySymbol = Symbol.for("[webidl2js] constructor registry");
+var compactQueue = function compactQueue(queue) {
+    while (queue.length > 1) {
+        var item = queue.pop();
+        var obj = item.obj[item.prop];
 
-const AsyncIteratorPrototype = Object.getPrototypeOf(Object.getPrototypeOf(async function* () {}).prototype);
+        if (isArray(obj)) {
+            var compacted = [];
 
-function initCtorRegistry(globalObject) {
-  if (hasOwn(globalObject, ctorRegistrySymbol)) {
-    return globalObject[ctorRegistrySymbol];
-  }
+            for (var j = 0; j < obj.length; ++j) {
+                if (typeof obj[j] !== 'undefined') {
+                    compacted[compacted.length] = obj[j];
+                }
+            }
 
-  const ctorRegistry = Object.create(null);
+            item.obj[item.prop] = compacted;
+        }
+    }
+};
 
-  // In addition to registering all the WebIDL2JS-generated types in the constructor registry,
-  // we also register a few intrinsics that we make use of in generated code, since they are not
-  // easy to grab from the globalObject variable.
-  ctorRegistry["%Object.prototype%"] = globalObject.Object.prototype;
-  ctorRegistry["%IteratorPrototype%"] = Object.getPrototypeOf(
-    Object.getPrototypeOf(new globalObject.Array()[Symbol.iterator]())
-  );
+var arrayToObject = function arrayToObject(source, options) {
+    var obj = options && options.plainObjects ? { __proto__: null } : {};
+    for (var i = 0; i < source.length; ++i) {
+        if (typeof source[i] !== 'undefined') {
+            obj[i] = source[i];
+        }
+    }
 
-  try {
-    ctorRegistry["%AsyncIteratorPrototype%"] = Object.getPrototypeOf(
-      Object.getPrototypeOf(
-        globalObject.eval("(async function* () {})").prototype
-      )
-    );
-  } catch {
-    ctorRegistry["%AsyncIteratorPrototype%"] = AsyncIteratorPrototype;
-  }
+    return obj;
+};
 
-  globalObject[ctorRegistrySymbol] = ctorRegistry;
-  return ctorRegistry;
-}
+var merge = function merge(target, source, options) {
+    /* eslint no-param-reassign: 0 */
+    if (!source) {
+        return target;
+    }
 
-function getSameObject(wrapper, prop, creator) {
-  if (!wrapper[sameObjectCaches]) {
-    wrapper[sameObjectCaches] = Object.create(null);
-  }
+    if (typeof source !== 'object' && typeof source !== 'function') {
+        if (isArray(target)) {
+            var nextIndex = target.length;
+            if (options && typeof options.arrayLimit === 'number' && nextIndex > options.arrayLimit) {
+                return markOverflow(arrayToObject(target.concat(source), options), nextIndex);
+            }
+            target[nextIndex] = source;
+        } else if (target && typeof target === 'object') {
+            if (isOverflow(target)) {
+                // Add at next numeric index for overflow objects
+                var newIndex = getMaxIndex(target) + 1;
+                target[newIndex] = source;
+                setMaxIndex(target, newIndex);
+            } else if (options && options.strictMerge) {
+                return [target, source];
+            } else if (
+                (options && (options.plainObjects || options.allowPrototypes))
+                || !has.call(Object.prototype, source)
+            ) {
+                target[source] = true;
+            }
+        } else {
+            return [target, source];
+        }
 
-  if (prop in wrapper[sameObjectCaches]) {
-    return wrapper[sameObjectCaches][prop];
-  }
+        return target;
+    }
 
-  wrapper[sameObjectCaches][prop] = creator();
-  return wrapper[sameObjectCaches][prop];
-}
+    if (!target || typeof target !== 'object') {
+        if (isOverflow(source)) {
+            // Create new object with target at 0, source values shifted by 1
+            var sourceKeys = Object.keys(source);
+            var result = options && options.plainObjects
+                ? { __proto__: null, 0: target }
+                : { 0: target };
+            for (var m = 0; m < sourceKeys.length; m++) {
+                var oldKey = parseInt(sourceKeys[m], 10);
+                result[oldKey + 1] = source[sourceKeys[m]];
+            }
+            return markOverflow(result, getMaxIndex(source) + 1);
+        }
+        var combined = [target].concat(source);
+        if (options && typeof options.arrayLimit === 'number' && combined.length > options.arrayLimit) {
+            return markOverflow(arrayToObject(combined, options), combined.length - 1);
+        }
+        return combined;
+    }
 
-function wrapperForImpl(impl) {
-  return impl ? impl[wrapperSymbol] : null;
-}
+    var mergeTarget = target;
+    if (isArray(target) && !isArray(source)) {
+        mergeTarget = arrayToObject(target, options);
+    }
 
-function implForWrapper(wrapper) {
-  return wrapper ? wrapper[implSymbol] : null;
-}
+    if (isArray(target) && isArray(source)) {
+        source.forEach(function (item, i) {
+            if (has.call(target, i)) {
+                var targetItem = target[i];
+                if (targetItem && typeof targetItem === 'object' && item && typeof item === 'object') {
+                    target[i] = merge(targetItem, item, options);
+                } else {
+                    target[target.length] = item;
+                }
+            } else {
+                target[i] = item;
+            }
+        });
+        return target;
+    }
 
-function tryWrapperForImpl(impl) {
-  const wrapper = wrapperForImpl(impl);
-  return wrapper ? wrapper : impl;
-}
+    return Object.keys(source).reduce(function (acc, key) {
+        var value = source[key];
 
-function tryImplForWrapper(wrapper) {
-  const impl = implForWrapper(wrapper);
-  return impl ? impl : wrapper;
-}
+        if (has.call(acc, key)) {
+            acc[key] = merge(acc[key], value, options);
+        } else {
+            acc[key] = value;
+        }
 
-const iterInternalSymbol = Symbol("internal");
+        if (isOverflow(source) && !isOverflow(acc)) {
+            markOverflow(acc, getMaxIndex(source));
+        }
+        if (isOverflow(acc)) {
+            var keyNum = parseInt(key, 10);
+            if (String(keyNum) === key && keyNum >= 0 && keyNum > getMaxIndex(acc)) {
+                setMaxIndex(acc, keyNum);
+            }
+        }
 
-function isArrayIndexPropName(P) {
-  if (typeof P !== "string") {
-    return false;
-  }
-  const i = P >>> 0;
-  if (i === 2 ** 32 - 1) {
-    return false;
-  }
-  const s = `${i}`;
-  if (P !== s) {
-    return false;
-  }
-  return true;
-}
+        return acc;
+    }, mergeTarget);
+};
 
-const byteLengthGetter =
-    Object.getOwnPropertyDescriptor(ArrayBuffer.prototype, "byteLength").get;
-function isArrayBuffer(value) {
-  try {
-    byteLengthGetter.call(value);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
+var assign = function assignSingleSource(target, source) {
+    return Object.keys(source).reduce(function (acc, key) {
+        acc[key] = source[key];
+        return acc;
+    }, target);
+};
 
-function iteratorResult([key, value], kind) {
-  let result;
-  switch (kind) {
-    case "key":
-      result = key;
-      break;
-    case "value":
-      result = value;
-      break;
-    case "key+value":
-      result = [key, value];
-      break;
-  }
-  return { value: result, done: false };
-}
+var decode = function (str, defaultDecoder, charset) {
+    var strWithoutPlus = str.replace(/\+/g, ' ');
+    if (charset === 'iso-8859-1') {
+        // unescape never throws, no try...catch needed:
+        return strWithoutPlus.replace(/%[0-9a-f]{2}/gi, unescape);
+    }
+    // utf-8
+    try {
+        return decodeURIComponent(strWithoutPlus);
+    } catch (e) {
+        return strWithoutPlus;
+    }
+};
 
-const supportsPropertyIndex = Symbol("supports property index");
-const supportedPropertyIndices = Symbol("supported property indices");
-const supportsPropertyName = Symbol("supports property name");
-const supportedPropertyNames = Symbol("supported property names");
-const indexedGet = Symbol("indexed property get");
-const indexedSetNew = Symbol("indexed property set new");
-const indexedSetExisting = Symbol("indexed property set existing");
-const namedGet = Symbol("named property get");
-const namedSetNew = Symbol("named property set new");
-const namedSetExisting = Symbol("named property set existing");
-const namedDelete = Symbol("named property delete");
+var limit = 1024;
 
-const asyncIteratorNext = Symbol("async iterator get the next iteration result");
-const asyncIteratorReturn = Symbol("async iterator return steps");
-const asyncIteratorInit = Symbol("async iterator initialization steps");
-const asyncIteratorEOI = Symbol("async iterator end of iteration");
+/* eslint operator-linebreak: [2, "before"] */
 
-module.exports = exports = {
-  isObject,
-  hasOwn,
-  define,
-  newObjectInRealm,
-  wrapperSymbol,
-  implSymbol,
-  getSameObject,
-  ctorRegistrySymbol,
-  initCtorRegistry,
-  wrapperForImpl,
-  implForWrapper,
-  tryWrapperForImpl,
-  tryImplForWrapper,
-  iterInternalSymbol,
-  isArrayBuffer,
-  isArrayIndexPropName,
-  supportsPropertyIndex,
-  supportedPropertyIndices,
-  supportsPropertyName,
-  supportedPropertyNames,
-  indexedGet,
-  indexedSetNew,
-  indexedSetExisting,
-  namedGet,
-  namedSetNew,
-  namedSetExisting,
-  namedDelete,
-  asyncIteratorNext,
-  asyncIteratorReturn,
-  asyncIteratorInit,
-  asyncIteratorEOI,
-  iteratorResult
+var encode = function encode(str, defaultEncoder, charset, kind, format) {
+    // This code was originally written by Brian White (mscdex) for the io.js core querystring library.
+    // It has been adapted here for stricter adherence to RFC 3986
+    if (str.length === 0) {
+        return str;
+    }
+
+    var string = str;
+    if (typeof str === 'symbol') {
+        string = Symbol.prototype.toString.call(str);
+    } else if (typeof str !== 'string') {
+        string = String(str);
+    }
+
+    if (charset === 'iso-8859-1') {
+        return escape(string).replace(/%u[0-9a-f]{4}/gi, function ($0) {
+            return '%26%23' + parseInt($0.slice(2), 16) + '%3B';
+        });
+    }
+
+    var out = '';
+    for (var j = 0; j < string.length; j += limit) {
+        var segment = string.length >= limit ? string.slice(j, j + limit) : string;
+        var arr = [];
+
+        for (var i = 0; i < segment.length; ++i) {
+            var c = segment.charCodeAt(i);
+            if (
+                c === 0x2D // -
+                || c === 0x2E // .
+                || c === 0x5F // _
+                || c === 0x7E // ~
+                || (c >= 0x30 && c <= 0x39) // 0-9
+                || (c >= 0x41 && c <= 0x5A) // a-z
+                || (c >= 0x61 && c <= 0x7A) // A-Z
+                || (format === formats.RFC1738 && (c === 0x28 || c === 0x29)) // ( )
+            ) {
+                arr[arr.length] = segment.charAt(i);
+                continue;
+            }
+
+            if (c < 0x80) {
+                arr[arr.length] = hexTable[c];
+                continue;
+            }
+
+            if (c < 0x800) {
+                arr[arr.length] = hexTable[0xC0 | (c >> 6)]
+                    + hexTable[0x80 | (c & 0x3F)];
+                continue;
+            }
+
+            if (c < 0xD800 || c >= 0xE000) {
+                arr[arr.length] = hexTable[0xE0 | (c >> 12)]
+                    + hexTable[0x80 | ((c >> 6) & 0x3F)]
+                    + hexTable[0x80 | (c & 0x3F)];
+                continue;
+            }
+
+            i += 1;
+            c = 0x10000 + (((c & 0x3FF) << 10) | (segment.charCodeAt(i) & 0x3FF));
+
+            arr[arr.length] = hexTable[0xF0 | (c >> 18)]
+                + hexTable[0x80 | ((c >> 12) & 0x3F)]
+                + hexTable[0x80 | ((c >> 6) & 0x3F)]
+                + hexTable[0x80 | (c & 0x3F)];
+        }
+
+        out += arr.join('');
+    }
+
+    return out;
+};
+
+var compact = function compact(value) {
+    var queue = [{ obj: { o: value }, prop: 'o' }];
+    var refs = [];
+
+    for (var i = 0; i < queue.length; ++i) {
+        var item = queue[i];
+        var obj = item.obj[item.prop];
+
+        var keys = Object.keys(obj);
+        for (var j = 0; j < keys.length; ++j) {
+            var key = keys[j];
+            var val = obj[key];
+            if (typeof val === 'object' && val !== null && refs.indexOf(val) === -1) {
+                queue[queue.length] = { obj: obj, prop: key };
+                refs[refs.length] = val;
+            }
+        }
+    }
+
+    compactQueue(queue);
+
+    return value;
+};
+
+var isRegExp = function isRegExp(obj) {
+    return Object.prototype.toString.call(obj) === '[object RegExp]';
+};
+
+var isBuffer = function isBuffer(obj) {
+    if (!obj || typeof obj !== 'object') {
+        return false;
+    }
+
+    return !!(obj.constructor && obj.constructor.isBuffer && obj.constructor.isBuffer(obj));
+};
+
+var combine = function combine(a, b, arrayLimit, plainObjects) {
+    // If 'a' is already an overflow object, add to it
+    if (isOverflow(a)) {
+        var newIndex = getMaxIndex(a) + 1;
+        a[newIndex] = b;
+        setMaxIndex(a, newIndex);
+        return a;
+    }
+
+    var result = [].concat(a, b);
+    if (result.length > arrayLimit) {
+        return markOverflow(arrayToObject(result, { plainObjects: plainObjects }), result.length - 1);
+    }
+    return result;
+};
+
+var maybeMap = function maybeMap(val, fn) {
+    if (isArray(val)) {
+        var mapped = [];
+        for (var i = 0; i < val.length; i += 1) {
+            mapped[mapped.length] = fn(val[i]);
+        }
+        return mapped;
+    }
+    return fn(val);
+};
+
+module.exports = {
+    arrayToObject: arrayToObject,
+    assign: assign,
+    combine: combine,
+    compact: compact,
+    decode: decode,
+    encode: encode,
+    isBuffer: isBuffer,
+    isOverflow: isOverflow,
+    isRegExp: isRegExp,
+    markOverflow: markOverflow,
+    maybeMap: maybeMap,
+    merge: merge
 };

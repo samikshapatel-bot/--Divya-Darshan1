@@ -1,87 +1,98 @@
-2.0.2 / 2025-06-06
+2.4.1 / 2022-02-22
 ==================
 
-  * Migrate to `String.prototype.slice()`
+  * Fix error on early async hooks implementations
 
-2.0.1 / 2021-01-03
+2.4.0 / 2022-02-21
 ==================
 
-  * Fix returning values from `Object.prototype`
+  * Prevent loss of async hooks context
 
-2.0.0 / 2020-04-19
+2.3.0 / 2015-05-26
 ==================
 
-  * Drop support for Node.js 0.6
-  * Fix messaging casing of `418 I'm a Teapot`
-  * Remove code 306
-  * Remove `status[code]` exports; use `status.message[code]`
-  * Remove `status[msg]` exports; use `status.code[msg]`
-  * Rename `425 Unordered Collection` to standard `425 Too Early`
-  * Rename `STATUS_CODES` export to `message`
-  * Return status message for `statuses(code)` when given code
+  * Add defined behavior for HTTP `CONNECT` requests
+  * Add defined behavior for HTTP `Upgrade` requests
+  * deps: ee-first@1.1.1
 
-1.5.0 / 2018-03-27
+2.2.1 / 2015-04-22
 ==================
 
-  * Add `103 Early Hints`
+  * Fix `isFinished(req)` when data buffered
 
-1.4.0 / 2017-10-20
+2.2.0 / 2014-12-22
 ==================
 
-  * Add `STATUS_CODES` export
+  * Add message object to callback arguments
 
-1.3.1 / 2016-11-11
+2.1.1 / 2014-10-22
 ==================
 
-  * Fix return type in JSDoc
+  * Fix handling of pipelined requests
 
-1.3.0 / 2016-05-17
+2.1.0 / 2014-08-16
 ==================
 
-  * Add `421 Misdirected Request`
-  * perf: enable strict mode
+  * Check if `socket` is detached
+  * Return `undefined` for `isFinished` if state unknown
 
-1.2.1 / 2015-02-01
+2.0.0 / 2014-08-16
 ==================
 
-  * Fix message for status 451
-    - `451 Unavailable For Legal Reasons`
+  * Add `isFinished` function
+  * Move to `jshttp` organization
+  * Remove support for plain socket argument
+  * Rename to `on-finished`
+  * Support both `req` and `res` as arguments
+  * deps: ee-first@1.0.5
 
-1.2.0 / 2014-09-28
+1.2.2 / 2014-06-10
 ==================
 
-  * Add `208 Already Repored`
-  * Add `226 IM Used`
-  * Add `306 (Unused)`
-  * Add `415 Unable For Legal Reasons`
-  * Add `508 Loop Detected`
+  * Reduce listeners added to emitters
+    - avoids "event emitter leak" warnings when used multiple times on same request
 
-1.1.1 / 2014-09-24
+1.2.1 / 2014-06-08
 ==================
 
-  * Add missing 308 to `codes.json`
+  * Fix returned value when already finished
 
-1.1.0 / 2014-09-21
+1.2.0 / 2014-06-05
 ==================
 
-  * Add `codes.json` for universal support
+  * Call callback when called on already-finished socket
 
-1.0.4 / 2014-08-20
+1.1.4 / 2014-05-27
 ==================
 
-  * Package cleanup
+  * Support node.js 0.8
 
-1.0.3 / 2014-06-08
+1.1.3 / 2014-04-30
 ==================
 
-  * Add 308 to `.redirect` category
+  * Make sure errors passed as instanceof `Error`
 
-1.0.2 / 2014-03-13
+1.1.2 / 2014-04-18
 ==================
 
-  * Add `.retry` category
+  * Default the `socket` to passed-in object
 
-1.0.1 / 2014-03-12
+1.1.1 / 2014-01-16
+==================
+
+  * Rename module to `finished`
+
+1.1.0 / 2013-12-25
+==================
+
+  * Call callback when called on already-errored socket
+
+1.0.1 / 2013-12-20
+==================
+
+  * Actually pass the error to the callback
+
+1.0.0 / 2013-12-20
 ==================
 
   * Initial release
