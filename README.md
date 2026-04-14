@@ -1,76 +1,61 @@
-# tr46
+# side-channel <sup>[![Version Badge][npm-version-svg]][package-url]</sup>
 
-An JavaScript implementation of [Unicode Technical Standard #46: Unicode IDNA Compatibility Processing](https://unicode.org/reports/tr46/).
+[![github actions][actions-image]][actions-url]
+[![coverage][codecov-image]][codecov-url]
+[![License][license-image]][license-url]
+[![Downloads][downloads-image]][downloads-url]
 
-## API
+[![npm badge][npm-badge-png]][package-url]
 
-### `toASCII(domainName[, options])`
+Store information about any JS value in a side channel. Uses WeakMap if available.
 
-Converts a string of Unicode symbols to a case-folded Punycode string of ASCII symbols.
+Warning: in an environment that lacks `WeakMap`, this implementation will leak memory until you `delete` the `key`.
 
-Available options:
+## Getting started
 
-* [`checkBidi`](#checkbidi)
-* [`checkHyphens`](#checkhyphens)
-* [`checkJoiners`](#checkjoiners)
-* [`ignoreInvalidPunycode`](#ignoreinvalidpunycode)
-* [`transitionalProcessing`](#transitionalprocessing)
-* [`useSTD3ASCIIRules`](#usestd3asciirules)
-* [`verifyDNSLength`](#verifydnslength)
+```sh
+npm install --save side-channel
+```
 
-### `toUnicode(domainName[, options])`
+## Usage/Examples
 
-Converts a case-folded Punycode string of ASCII symbols to a string of Unicode symbols.
+```js
+const assert = require('assert');
+const getSideChannel = require('side-channel');
 
-Available options:
+const channel = getSideChannel();
 
-* [`checkBidi`](#checkbidi)
-* [`checkHyphens`](#checkhyphens)
-* [`checkJoiners`](#checkjoiners)
-* [`ignoreInvalidPunycode`](#ignoreinvalidpunycode)
-* [`transitionalProcessing`](#transitionalprocessing)
-* [`useSTD3ASCIIRules`](#usestd3asciirules)
+const key = {};
+assert.equal(channel.has(key), false);
+assert.throws(() => channel.assert(key), TypeError);
 
-## Options
+channel.set(key, 42);
 
-### `checkBidi`
+channel.assert(key); // does not throw
+assert.equal(channel.has(key), true);
+assert.equal(channel.get(key), 42);
 
-Type: `boolean`
-Default value: `false`
-When set to `true`, any bi-directional text within the input will be checked for validation.
+channel.delete(key);
+assert.equal(channel.has(key), false);
+assert.throws(() => channel.assert(key), TypeError);
+```
 
-### `checkHyphens`
+## Tests
 
-Type: `boolean`
-Default value: `false`
-When set to `true`, the positions of any hyphen characters within the input will be checked for validation.
+Clone the repo, `npm install`, and run `npm test`
 
-### `checkJoiners`
-
-Type: `boolean`
-Default value: `false`
-When set to `true`, any word joiner characters within the input will be checked for validation.
-
-### `ignoreInvalidPunycode`
-
-Type: `boolean`
-Default value: `false`
-When set to `true`, invalid Punycode strings within the input will be allowed.
-
-### `transitionalProcessing`
-
-Type: `boolean`
-Default value: `false`
-When set to `true`, uses [transitional (compatibility) processing](https://unicode.org/reports/tr46/#Compatibility_Processing) of the deviation characters.
-
-### `useSTD3ASCIIRules`
-
-Type: `boolean`
-Default value: `false`
-When set to `true`, input will be validated according to [STD3 Rules](http://unicode.org/reports/tr46/#STD3_Rules).
-
-### `verifyDNSLength`
-
-Type: `boolean`
-Default value: `false`
-When set to `true`, the length of each DNS label within the input will be checked for validation.
+[package-url]: https://npmjs.org/package/side-channel
+[npm-version-svg]: https://versionbadg.es/ljharb/side-channel.svg
+[deps-svg]: https://david-dm.org/ljharb/side-channel.svg
+[deps-url]: https://david-dm.org/ljharb/side-channel
+[dev-deps-svg]: https://david-dm.org/ljharb/side-channel/dev-status.svg
+[dev-deps-url]: https://david-dm.org/ljharb/side-channel#info=devDependencies
+[npm-badge-png]: https://nodei.co/npm/side-channel.png?downloads=true&stars=true
+[license-image]: https://img.shields.io/npm/l/side-channel.svg
+[license-url]: LICENSE
+[downloads-image]: https://img.shields.io/npm/dm/side-channel.svg
+[downloads-url]: https://npm-stat.com/charts.html?package=side-channel
+[codecov-image]: https://codecov.io/gh/ljharb/side-channel/branch/main/graphs/badge.svg
+[codecov-url]: https://app.codecov.io/gh/ljharb/side-channel/
+[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/ljharb/side-channel
+[actions-url]: https://github.com/ljharb/side-channel/actions

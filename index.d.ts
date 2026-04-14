@@ -1,11 +1,14 @@
-import type { createMemoryCodePoints } from './memory-code-points';
-declare function saslprep({ unassigned_code_points, commonly_mapped_to_nothing, non_ASCII_space_characters, prohibited_characters, bidirectional_r_al, bidirectional_l, }: ReturnType<typeof createMemoryCodePoints>, input: string, opts?: {
-    allowUnassigned?: boolean;
-}): string;
-declare namespace saslprep {
-    export var saslprep: typeof import(".");
-    var _a: typeof import(".");
-    export { _a as default };
+import getSideChannelList from 'side-channel-list';
+import getSideChannelMap from 'side-channel-map';
+import getSideChannelWeakMap from 'side-channel-weakmap';
+
+declare namespace getSideChannel {
+	type Channel<K, V> =
+		| getSideChannelList.Channel<K, V>
+		| ReturnType<Exclude<typeof getSideChannelMap<K, V>, false>>
+		| ReturnType<Exclude<typeof getSideChannelWeakMap<K, V>, false>>;
 }
-export = saslprep;
-//# sourceMappingURL=index.d.ts.map
+
+declare function getSideChannel<K, V>(): getSideChannel.Channel<K, V>;
+
+export = getSideChannel;
