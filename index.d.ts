@@ -1,3 +1,5 @@
-export function byteLength(b64: string): number;
-export function toByteArray(b64: string): Uint8Array;
-export function fromByteArray(uint8: Uint8Array): string;
+declare function gOPD<O extends object, K extends keyof O>(obj: O, prop: K): PropertyDescriptor | undefined;
+
+declare const fn: typeof gOPD | undefined | null;
+
+export = fn;

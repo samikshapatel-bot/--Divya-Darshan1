@@ -1,33 +1,40 @@
-png.js
-======
-A PNG decoder in JS for the canvas element or Node.js.
+# gopd <sup>[![Version Badge][npm-version-svg]][package-url]</sup>
 
-## Browser Usage
-Simply include png.js and zlib.js on your HTML page, create a canvas element, and call PNG.load to load an image.
+[![github actions][actions-image]][actions-url]
+[![coverage][codecov-image]][codecov-url]
+[![License][license-image]][license-url]
+[![Downloads][downloads-image]][downloads-url]
 
-    <canvas></canvas>
-    <script src="zlib.js"></script>
-    <script src="png.js"></script>
-    <script>
-        var canvas = document.getElementsByTagName('canvas')[0];
-        PNG.load('some.png', canvas);
-    </script>
-    
-The source code for the browser version resides in `png.js` and also supports loading and displaying animated PNGs.
-    
-## Node.js Usage
-Install the module using npm
+[![npm badge][npm-badge-png]][package-url]
 
-    sudo npm install png-js
-    
-Require the module and decode a PNG
+`Object.getOwnPropertyDescriptor`, but accounts for IE's broken implementation.
 
-    var PNG = require('png-js');
-    PNG.decode('some.png', function(pixels) {
-        // pixels is a 1d array (in rgba order) of decoded pixel data
-    });
-    
-You can also call `PNG.load` if you want to load the PNG (but not decode the pixels) synchronously.  If you already
-have the PNG data in a buffer, simply use `new PNG(buffer)`.  In both of these cases, you need to call `png.decode`
-yourself which passes your callback the decoded pixels as a buffer.  If you already have a buffer you want the pixels
-copied to, call `copyToImageData` with your buffer and the decoded pixels as returned from `decodePixels`.
+## Usage
+
+```javascript
+var gOPD = require('gopd');
+var assert = require('assert');
+
+if (gOPD) {
+	assert.equal(typeof gOPD, 'function', 'descriptors supported');
+	// use gOPD like Object.getOwnPropertyDescriptor here
+} else {
+	assert.ok(!gOPD, 'descriptors not supported');
+}
+```
+
+[package-url]: https://npmjs.org/package/gopd
+[npm-version-svg]: https://versionbadg.es/ljharb/gopd.svg
+[deps-svg]: https://david-dm.org/ljharb/gopd.svg
+[deps-url]: https://david-dm.org/ljharb/gopd
+[dev-deps-svg]: https://david-dm.org/ljharb/gopd/dev-status.svg
+[dev-deps-url]: https://david-dm.org/ljharb/gopd#info=devDependencies
+[npm-badge-png]: https://nodei.co/npm/gopd.png?downloads=true&stars=true
+[license-image]: https://img.shields.io/npm/l/gopd.svg
+[license-url]: LICENSE
+[downloads-image]: https://img.shields.io/npm/dm/gopd.svg
+[downloads-url]: https://npm-stat.com/charts.html?package=gopd
+[codecov-image]: https://codecov.io/gh/ljharb/gopd/branch/main/graphs/badge.svg
+[codecov-url]: https://app.codecov.io/gh/ljharb/gopd/
+[actions-image]: https://img.shields.io/endpoint?url=https://github-actions-badge-u3jn4tfpocch.runkit.sh/ljharb/gopd
+[actions-url]: https://github.com/ljharb/gopd/actions

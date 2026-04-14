@@ -1,17 +1,36 @@
-export {EncodeStream} from './src/EncodeStream.js';
-export {DecodeStream} from './src/DecodeStream.js';
-export {Array} from './src/Array.js';
-export {LazyArray} from './src/LazyArray.js';
-export {Bitfield} from './src/Bitfield.js';
-export {Boolean} from './src/Boolean.js';
-export {Buffer} from './src/Buffer.js';
-export {Enum} from './src/Enum.js';
-export {Optional} from './src/Optional.js';
-export {Reserved} from './src/Reserved.js';
-export {String} from './src/String.js';
-export {Struct} from './src/Struct.js';
-export {VersionedStruct} from './src/VersionedStruct.js';
+'use strict';
 
-export * from './src/utils.js';
-export * from './src/Number.js';
-export * from './src/Pointer.js';
+var test = require('tape');
+var gOPD = require('../');
+
+test('gOPD', function (t) {
+	t.test('supported', { skip: !gOPD }, function (st) {
+		st.equal(typeof gOPD, 'function', 'is a function');
+
+		var obj = { x: 1 };
+		st.ok('x' in obj, 'property exists');
+
+		// @ts-expect-error TS can't figure out narrowing from `skip`
+		var desc = gOPD(obj, 'x');
+		st.deepEqual(
+			desc,
+			{
+				configurable: true,
+				enumerable: true,
+				value: 1,
+				writable: true
+			},
+			'descriptor is as expected'
+		);
+
+		st.end();
+	});
+
+	t.test('not supported', { skip: !!gOPD }, function (st) {
+		st.notOk(gOPD, 'is falsy');
+
+		st.end();
+	});
+
+	t.end();
+});
