@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Bookings</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+<div class="main-container" style="max-width:600px; padding:20px;">
+
+    <h2 style="text-align:center; color:#081A39;">📜 My Booking History</h2>
+
+    <% if (bookings.length === 0) { %>
+        <p style="text-align:center;">No bookings found</p>
+    <% } %>
+
+    <% bookings.forEach(b => { %>
+
+        <div style="
+            border:1px solid #ddd;
+            border-radius:10px;
+            padding:15px;
+            margin:15px 0;
+            background:#f9f9f9;
+        ">
+
+            <h3 style="color:#081A39;"><%= b.temple %></h3>
+
+            <p><strong>Date:</strong> <%= b.date %></p>
+            <p><strong>Slot:</strong> <%= b.slot %></p>
+
+            <p style="font-size:12px; color:gray;">
+                Booked on: <%= b.bookingDate.toDateString() %>
+            </p>
+
+        </div>
+
+    <% }) %>
+
+    <a href="/" style="
+        display:block;
+        text-align:center;
+        margin-top:20px;
+        text-decoration:none;
+        font-weight:bold;
+    ">
+        ⬅ Back to Home
+    </a>
+
+</div>
+
+</div>
+
+</body>
+</html>

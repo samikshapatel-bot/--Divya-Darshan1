@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Divya Darshan | Experience Divine</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<!-- WHATSAPP BUTTON -->
+<a href="https://wa.me/919876543210" class="whatsapp-btn" target="_blank">
+    💬
+</a>
+<style>
+
+/* ===== ROOT ===== */
+:root {
+    --navy: #081A39;
+    --gold: #FFD700;
+    --white: #fff;
+    --glass: rgba(255,255,255,0.08);
+}
+
+
+/* ===== BODY ===== */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: var(--navy);
+    color: white;
+}
+
+/* ===== NAVBAR ===== */
+nav {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 6%;
+    background: rgba(255,255,255,0.95);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo {
+    font-family: 'Cinzel';
+    font-weight: bold;
+    color: var(--navy);
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--navy);
+    font-size: 0.9rem;
+}
+
+.signup-btn {
+    background: var(--navy);
+    color: var(--gold) !important;
+    padding: 8px 20px;
+    border-radius: 30px;
+}
+
+/* ===== HERO ===== */
+.hero {
+    display: flex;
+    justify-content: space-between;
+    padding: 80px 6%;
+    gap: 50px;
+    flex-wrap: wrap;
+}
+
+/* TEXT */
+.hero-text {
+    flex: 1;
+}
+
+.hero-text h1 {
+    font-family: 'Cinzel';
+    font-size: 3.5rem;
+    margin: 0;
+}
+
+.highlight {
+    color: var(--gold);
+}
+
+.hero-text p {
+    margin: 25px 0;
+    opacity: 0.8;
+}
+
+/* BUTTONS */
+.btn {
+    padding: 12px 30px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    margin-right: 10px;
+}
+
+.primary {
+    background: var(--gold);
+    color: var(--navy);
+}
+
+.outline {
+    border: 1px solid white;
+    color: white;
+}
+
+/* ===== RIGHT SIDE ===== */
+.side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* QUOTE */
+.quote {
+    background: var(--glass);
+    padding: 20px;
+    border-radius: 15px;
+    border-left: 4px solid var(--gold);
+    text-align: center;
+}
+
+/* ===== CARD LAYOUT ===== */
+.layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* TOP */
+.top {
+    display: flex;
+    gap: 20px;
+}
+
+/* BOTTOM */
+.bottom {
+    display: flex;
+    gap: 20px;
+}
+
+/* CARD */
+.card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    flex: 1;
+    transition: 0.4s;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+}
+
+/* IMAGE */
+.card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+/* BIG IMAGE */
+.card.big img {
+    height: 180px;
+}
+
+/* INFO */
+.info {
+    padding: 15px;
+    text-align: center;
+}
+
+.info h3 {
+    margin: 0;
+    color: var(--navy);
+}
+
+.info p {
+    margin: 5px 0 0;
+    color: gray;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    text-align: center;
+    padding: 60px;
+    opacity: 0.7;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+<nav>
+    <a href="/" class="logo">ॐ DIVYA DARSHAN</a>
+
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/book">Book Puja</a>
+        <a href="/history">My Bookings</a>
+        <a href="/login">Login</a>
+        <a href="/signup" class="signup-btn">Get Started</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+
+    <!-- LEFT -->
+    <div class="hero-text">
+        <h1>Experience the Divine, <br> <span class="highlight">Anywhere</span></h1>
+
+        <p>Book puja, attend darshan and connect spiritually from your home.</p>
+
+        <a href="/book" class="btn primary">Start Darshan</a>
+        <a href="/explore" class="btn outline">Explore</a>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="side">
+
+        <div class="quote">
+            "Faith is not seen, it is felt within."
+        </div>
+
+        <div class="layout">
+
+            <!-- TOP -->
+            <div class="top">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1627894483216-2138af692e32?auto=format&fit=crop&q=80">
+                    <div class="info">
+                        <h3>Kashi Vishwanath</h3>
+                        <p>Varanasi</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRidsKJL6jZ4AI4sdXqO9HfVwgZZwLu2E1pTg&s">
+                    <div class="info">
+                        <h3>Somnath</h3>
+                        <p>Gujarat</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTTOM -->
+            <div class="bottom">
+
+                <div class="card big">
+                    <img src="https://www.chardhamtour.in/assets/images/tourism/kedarnath/Kedarnath-Temple.webp">
+                    <div class="info">
+                        <h3>Kedarnath</h3>
+                        <p>Uttarakhand</p>
+                    </div>
+                </div>
+
+                <!-- NEW SAME SIZE -->
+                <div class="card big">
+                    <img src="/images/ujjain-temple.png">
+                    <div class="info">
+                        <h3>Mahakaleshwar</h3>
+                        <p>Ujjain</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!-- CONTACT SECTION -->
+
+
+    <!-- CONTACT SECTION -->
+<div class="contact-section">
+
+    <h2>Contact Us</h2>
+    <p>We are here to help you 24/7 🙏</p>
+
+    <div class="contact-grid">
+
+        <!-- CONTACT INFO -->
+        <div class="contact-box">
+            <h3>📧 Email</h3>
+            <p>support@divyadarshan.com</p>
+
+            <h3>📞 Phone</h3>
+            <p>+91 98765 43210</p>
+
+            <h3>📍 Location</h3>
+            <p>Ujjain, Madhya Pradesh</p>
+        </div>
+
+        <!-- CONTACT FORM -->
+        <div class="contact-box form-box">
+            <h3>Send Message</h3>
+
+            <form action="/contact" method="POST">
+                <input type="text" name="name" placeholder="Your Name" required>
+                <input type="email" name="email" placeholder="Your Email" required>
+                <textarea name="message" placeholder="Your Message..." required></textarea>
+
+                <button type="submit">Send Message</button>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- GOOGLE MAP -->
+    <div class="map-box">
+        <iframe 
+            src="https://www.google.com/maps?q=ujjain&output=embed"
+            width="100%" height="300" style="border:0;" allowfullscreen="">
+        </iframe>
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    © 2026 Divya Darshan | Built with Devotion 🙏
+</div>
+
+</body>
+</html>

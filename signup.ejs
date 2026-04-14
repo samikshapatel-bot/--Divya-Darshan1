@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up - Divya Darshan</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+/* ===== BODY ===== */
+body {
+    margin: 0;
+    background: linear-gradient(135deg, #081A39, #050e1f);
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ===== WRAPPER (FIXED MOBILE SCROLL ISSUE) ===== */
+.page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 15px;
+}
+
+/* ===== CARD ===== */
+.signup-box {
+    background: white;
+    width: 100%;
+    max-width: 420px;
+    border-radius: 18px;
+    padding: 30px 25px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    animation: fadeIn 0.5s ease;
+}
+
+/* ===== TITLE ===== */
+.signup-box h2 {
+    text-align: center;
+    color: #081A39;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* ===== INPUT GROUP ===== */
+.input-group {
+    position: relative;
+    margin-bottom: 12px;
+}
+
+/* ===== INPUTS ===== */
+input, select {
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: 0.3s;
+    background: #fafafa;
+}
+
+/* ===== FOCUS ===== */
+input:focus, select:focus {
+    border-color: #FFD700;
+    background: white;
+    outline: none;
+    box-shadow: 0 0 5px rgba(255,215,0,0.3);
+}
+
+/* ===== BUTTON ===== */
+button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    background: #081A39;
+    color: #FFD700;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #142c52;
+    transform: translateY(-2px);
+}
+
+/* ===== FOOTER ===== */
+.extra {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 0.9rem;
+}
+
+.extra a {
+    color: #081A39;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* ===== ERROR MESSAGE ===== */
+.error {
+    color: red;
+    font-size: 0.8rem;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* ===== SUCCESS MESSAGE ===== */
+.success {
+    color: green;
+    font-size: 0.85rem;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+    <div class="signup-box">
+
+        <h2>Create Account</h2>
+        <p class="subtitle">Join Divya Darshan for seamless booking</p>
+
+        <!-- OPTIONAL ERROR DISPLAY -->
+        <% if (typeof error !== 'undefined' && error) { %>
+    <div class="error"><%= error %></div>
+<% } %>
+        
+
+        <form action="/signup" method="POST">
+
+            <div class="input-group">
+                <input type="text" name="name" placeholder="Full Name" required>
+            </div>
+
+            <div class="input-group">
+                <input type="email" name="email" placeholder="Email Address" required>
+            </div>
+
+            <div class="input-group">
+                <input type="tel" name="phone" placeholder="Phone Number" required pattern="[0-9]{10}">
+            </div>
+
+            <div class="input-group">
+                <input type="number" name="age" placeholder="Age" required min="10" max="100">
+            </div>
+
+            <!-- ✅ FIXED GENDER -->
+            <div class="input-group">
+                <select name="gender" required>
+                    <option value="" disabled selected>Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <input type="password" name="password" placeholder="Create Password" required minlength="6">
+            </div>
+
+            <button type="submit">Create Account</button>
+
+        </form>
+
+        <div class="extra">
+            Already have an account? <a href="/login">Login</a>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

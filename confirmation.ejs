@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>Booking Confirmed - Divya Darshan</title>
+</head>
+
+<body style="background:#081A39; display:flex; justify-content:center; align-items:center; height:100vh; font-family:Segoe UI;">
+
+<div class="main-container" style="background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 450px; width:90%;">
+    
+    <div style="font-size: 50px; color: #28a745;">✔</div>
+    <h2 style="color: #081A39;">Booking Successful!</h2>
+    
+    <p>Your Darshan at <strong><%= temple %></strong> is confirmed.</p>
+    <p><strong>Date:</strong> <%= date %></p>
+    <p><strong>Slot:</strong> <%= slot %></p>
+
+    <hr style="border: 0.5px solid #eee; margin: 20px 0;">
+
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+        
+        <!-- Home Button -->
+        <a href="/" 
+           style="background: #081A39; color: #FFD700; padding: 12px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Back to Home
+        </a>
+
+        <!-- Download Receipt -->
+        <form action="/download-receipt" method="POST">
+            <input type="hidden" name="temple" value="<%= temple %>">
+            <input type="hidden" name="date" value="<%= date %>">
+            <input type="hidden" name="slot" value="<%= slot %>">
+
+            <button type="submit" 
+                style="background: #dc3545; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                PDF - Download Receipt 📥
+            </button>
+        </form>
+
+        <!-- ✅ FIXED HISTORY LINK -->
+        <a href="/history" 
+           style="color: #081A39; font-weight: bold; text-decoration: none;">
+            📜 View My Booking History
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

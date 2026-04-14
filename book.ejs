@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Book Darshan</title>
+
+<style>
+body {
+    background: #081A39;
+    color: white;
+    font-family: 'Segoe UI';
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background: rgba(255,255,255,0.05);
+    padding: 30px;
+    border-radius: 15px;
+    width: 400px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+select, input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: none;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #D4A017;
+    color: #081A39;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>🕉 Book Darshan</h2>
+
+    <form action="/checkout" method="POST">
+
+        <select name="temple" required>
+            <% Object.values(templesData).forEach(t => { %>
+                <option value="<%= t.fullName %>">
+                    <%= t.name %> - <%= t.location %>
+                </option>
+            <% }) %>
+        </select>
+
+        <input type="date" name="date" required>
+
+        <select name="slot" required>
+            <option>Morning (5AM - 9AM)</option>
+            <option>Afternoon</option>
+            <option>Evening Aarti</option>
+        </select>
+
+        <button type="submit">Proceed to Payment</button>
+
+    </form>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore 12 Jyotirlingas - Divya Darshan</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --navy: #081A39;
+            --gold: #D4A017;
+            --white: #fff;
+            --text-muted: rgba(255,255,255,0.6);
+            --card-bg: rgba(255,255,255,0.04);
+            --card-border: rgba(212,160,23,0.2);
+        }
+
+        body {
+            background: var(--navy);
+            color: var(--white);
+            font-family: 'Lato', sans-serif;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .nav-links a {
+            margin-left: 20px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .hero h1 span { color: var(--gold); }
+
+        .search-wrap {
+            max-width: 500px;
+            margin: auto;
+            padding: 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+        }
+
+        .filter-bar {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .filter-btn {
+            margin: 5px;
+            padding: 6px 12px;
+            border: 1px solid var(--gold);
+            background: transparent;
+            color: var(--gold);
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background: var(--gold);
+            color: black;
+        }
+
+        .temples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 2rem;
+        }
+
+        .temple-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            overflow: hidden;
+            padding: 15px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .card-cta {
+            border: 1px solid var(--gold);
+            padding: 5px 10px;
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        #noResults {
+            text-align: center;
+            display: none;
+            margin-top: 20px;
+            color: gray;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav>
+    <a href="/">🕉 Divya Darshan</a>
+
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/explore">Explore</a>
+
+        <% if (user) { %>
+            <a href="/book">Book</a>
+            <a href="/history">My Bookings</a>
+            <a href="/logout">Logout</a>
+        <% } else { %>
+            <a href="/login">Login</a>
+            <a href="/signup">Signup</a>
+        <% } %>
+    </div>
+</nav>
+
+<div class="hero">
+    <h1>Explore <span>Jyotirlingas</span></h1>
+    <p>Discover divine temples across India</p>
+</div>
+
+<div class="search-wrap">
+    <input type="text" id="searchInput" class="search-input" placeholder="Search temple...">
+</div>
+
+<div class="filter-bar">
+    <button class="filter-btn active" onclick="filterCards('all', this)">All</button>
+    <button class="filter-btn" onclick="filterCards('Maharashtra', this)">Maharashtra</button>
+    <button class="filter-btn" onclick="filterCards('Gujarat', this)">Gujarat</button>
+    <button class="filter-btn" onclick="filterCards('Madhya Pradesh', this)">MP</button>
+</div>
+
+<div id="noResults">No temples found 😔</div>
+
+<div class="temples-grid">
+
+    <% Object.values(templesData).forEach(t => { %>
+
+    <div class="temple-card" data-state="<%= t.state %>">
+        <h3><%= t.name %></h3>
+        <p><%= t.location %></p>
+        <p><%= t.description %></p>
+
+        <div class="card-footer">
+            <a href="/explore/<%= t.key %>" class="card-cta">Explore</a>
+            <a href="/book?temple=<%= t.fullName %>" class="card-cta">Book</a>
+        </div>
+    </div>
+
+    <% }) %>
+
+</div>
+
+<script>
+let currentFilter = "all";
+
+function applyFilters() {
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    let count = 0;
+
+    document.querySelectorAll(".temple-card").forEach(card => {
+        const text = card.innerText.toLowerCase();
+        const state = card.dataset.state;
+
+        let matchFilter = currentFilter === "all" || state === currentFilter;
+        let matchSearch = text.includes(search);
+
+        if (matchFilter && matchSearch) {
+            card.style.display = "block";
+            count++;
+        } else {
+            card.style.display = "none";
+        }
+    });
+
+    document.getElementById("noResults").style.display = count === 0 ? "block" : "none";
+}
+
+function filterCards(state, btn) {
+    currentFilter = state;
+
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    applyFilters();
+}
+
+document.getElementById("searchInput").addEventListener("input", applyFilters);
+</script>
+
+</body>
+</html>

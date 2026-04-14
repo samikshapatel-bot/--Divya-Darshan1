@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout - Divya Darshan</title>
+
+    <style>
+        body {
+            background-color: #081A39;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        .main-container {
+            background-color: white;
+            width: 95%;
+            max-width: 400px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .temple-header-img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-bottom: 4px solid #FFD700;
+        }
+
+        .content-box {
+            padding: 18px 20px;
+        }
+
+        .title {
+            color: #081A39;
+            margin: 5px 0 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .details-box {
+            background-color: #f0f4f8;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: left;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .amount-text {
+            color: #28a745;
+            font-size: 1.1rem;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .qr-card {
+            border: 2px dashed #081A39;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+            background: #fafafa;
+        }
+
+        .qr-img {
+            width: 130px;
+            height: 130px;
+            margin: 5px 0;
+        }
+
+        .timer-text {
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #28a745;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            animation: spin 0.8s linear infinite;
+            display: none;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .pay-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            width: 100%;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .pay-btn:hover {
+            background: #218838;
+        }
+
+        .secure-text {
+            font-size: 0.7rem;
+            color: gray;
+            margin-top: 10px;
+        }
+
+        .warning-text {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+
+    <!-- ✅ Dynamic Temple Image -->
+    <img src="/images/ujjain-temple.png" class="temple-header-img">
+
+    <div class="content-box">
+
+        <h3 class="title">Secure Checkout</h3>
+
+        <!-- ✅ Booking Details -->
+        <div class="details-box">
+            <p>Booking for: <strong><%= temple %></strong></p>
+            <p>Date: <%= date %> | Slot: <%= slot %></p>
+            <h3 class="amount-text">Total: ₹<%= typeof amount !== 'undefined' ? amount : 501 %></h3>
+        </div>
+
+        <!-- ✅ QR Payment -->
+        <div class="qr-card">
+            <p style="font-size: 0.8rem; font-weight: bold;">Scan to Pay</p>
+            <img src="/images/samscanner.jpeg" class="qr-img" style="border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.3);">>
+            <p style="font-size: 0.7rem;">GPay, PhonePe, Paytm</p>
+        </div>
+
+        <!-- ⚠ Demo Notice -->
+        <p class="warning-text">
+            ⚠ Demo Payment Only – No real transaction is processed
+        </p>
+
+        <!-- ⏳ Timer -->
+        <div class="timer-text">
+            Expires in: <span id="display-timer">05:00</span>
+        </div>
+
+        <!-- 🔄 Loader -->
+        <div id="loadingCircle" class="loader"></div>
+
+        <!-- ✅ FORM -->
+        <form id="paymentForm" action="/confirm" method="POST">
+
+    <input type="hidden" name="temple" value="<%= temple %>">
+    <input type="hidden" name="date" value="<%= date %>">
+    <input type="hidden" name="slot" value="<%= slot %>">
+
+    <input type="text" name="upi" placeholder="Enter UPI ID" required>
+
+    <button type="button" onclick="handlePayment()" id="payBtn">
+        I Have Paid Successfully
+    </button>
+
+</form>
+
+        <p class="secure-text">🔒 SSL Secure 256-bit Encryption</p>
+
+    </div>
+</div>
+
+
+
+    <script>
+function handlePayment() {
+    const upi = document.querySelector('input[name="upi"]').value;
+
+    if (!upi) {
+        alert("Please enter UPI ID");
+        return;
+    }
+
+    // loader show
+    document.getElementById('loadingCircle').style.display = 'block';
+
+    const btn = document.getElementById('payBtn');
+    btn.innerText = "Processing...";
+    btn.disabled = true;
+
+    // fake delay
+    setTimeout(() => {
+        document.getElementById('paymentForm').submit();
+    }, 1500);
+}
+</script>
+
+
+</body>
+</html>

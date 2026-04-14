@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= temple.fullName %> - Divya Darshan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --navy: #081A39;
+            --gold: #D4A017;
+            --gold-light: #F5C842;
+            --white: #FFFFFF;
+            --card-bg: rgba(255,255,255,0.04);
+            --card-border: rgba(212,160,23,0.2);
+            --text-muted: rgba(255,255,255,0.6);
+        }
+        body { background: var(--navy); color: var(--white); font-family: 'Lato', sans-serif; }
+
+        nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.2rem 4rem;
+            background: rgba(8,26,57,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--card-border);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-logo { font-family: 'Cinzel', serif; font-size: 1.4rem; font-weight: 700; color: var(--white); text-decoration: none; }
+        .nav-logo span { color: var(--gold); }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--gold); }
+        .nav-btn { background: var(--gold); color: var(--navy) !important; padding: 0.5rem 1.4rem; border-radius: 4px; font-weight: 700 !important; }
+
+        /* HERO SECTION */
+        .temple-hero {
+            position: relative;
+            height: 420px;
+            background: linear-gradient(135deg, #0d2554, #081A39);
+            display: flex;
+            align-items: flex-end;
+            overflow: hidden;
+        }
+        .temple-hero img {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            object-fit: cover; opacity: 0.35;
+        }
+        .temple-hero-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(8,26,57,1) 0%, transparent 60%);
+        }
+        .temple-hero-content {
+            position: relative; z-index: 2;
+            padding: 2rem 4rem 2.5rem;
+            width: 100%;
+        }
+        .jl-badge {
+            display: inline-block;
+            background: var(--gold);
+            color: var(--navy);
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            padding: 0.3rem 0.8rem;
+            border-radius: 3px;
+            margin-bottom: 0.8rem;
+        }
+        .temple-hero-content h1 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            font-weight: 900;
+            margin-bottom: 0.4rem;
+        }
+        .hero-location {
+            color: var(--gold);
+            font-size: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* MAIN CONTENT */
+        .content-wrap { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .info-block {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 1.8rem 2rem;
+        }
+
+        .info-block h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            padding-bottom: 0.7rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .info-block p {
+            color: rgba(255,255,255,0.78);
+            font-size: 0.95rem;
+            line-height: 1.75;
+        }
+
+        .detail-item {
+            display: flex;
+            gap: 0.8rem;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            align-items: flex-start;
+        }
+        .detail-item:last-child { border-bottom: none; }
+        .detail-icon { font-size: 1.1rem; margin-top: 0.1rem; flex-shrink: 0; }
+        .detail-label { font-size: 0.72rem; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.2rem; }
+        .detail-value { font-size: 0.9rem; color: var(--white); }
+
+        .action-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gold);
+            color: var(--navy);
+            padding: 0.85rem 2rem;
+            border-radius: 6px;
+            border: none;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover { background: var(--gold-light); }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--white);
+            padding: 0.85rem 2rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.25);
+            font-family: 'Lato', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-decoration: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+        @media (max-width: 768px) {
+            nav { padding: 1rem 1.5rem; }
+            .temple-hero-content { padding: 2rem 1.5rem 2rem; }
+            .info-grid { grid-template-columns: 1fr; }
+            .content-wrap { padding: 2rem 1.5rem 4rem; }
+            .action-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="nav-logo">🕉 DIVYA <span>DARSHAN</span></a>
+    <div class="nav-links">
+        <a href="/explore">← All Temples</a>
+        <% if (user) { %>
+            <a href="/book" class="nav-btn">Book Darshan</a>
+        <% } else { %>
+            <a href="/login" class="nav-btn">Login to Book</a>
+        <% } %>
+    </div>
+</nav>
+
+<!-- HERO -->
+<div class="temple-hero">
+    <% if (temple.images && temple.images[0]) { %>
+        <img src="/images/<%= temple.images[0] %>" alt="<%= temple.name %>">
+    <% } %>
+    <div class="temple-hero-overlay"></div>
+    <div class="temple-hero-content">
+        <div class="jl-badge">JYOTIRLINGA #<%= temple.number %></div>
+        <h1><%= temple.fullName %></h1>
+        <div class="hero-location">📍 <%= temple.location %></div>
+    </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content-wrap">
+    <div class="info-grid">
+        <!-- LEFT: Description + History -->
+        <div>
+            <div class="info-block" style="margin-bottom: 1.5rem;">
+                <h2>About This Jyotirlinga</h2>
+                <p><%= temple.description %></p>
+            </div>
+            <div class="info-block">
+                <h2>History & Significance</h2>
+                <p><%= temple.history %></p>
+            </div>
+        </div>
+
+        <!-- RIGHT: Quick Info -->
+        <div>
+            <div class="info-block">
+                <h2>Pilgrimage Info</h2>
+                <div class="detail-item">
+                    <div class="detail-icon">📍</div>
+                    <div>
+                        <div class="detail-label">Location</div>
+                        <div class="detail-value"><%= temple.location %></div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon">🕐</div>
+                    <div>
+                        <div class="detail-label">Darshan Timings</div>
+                        <div class="detail-value"><%= temple.darshaniTiming || '5:00 AM – 9:00 PM' %></div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon">📅</div>
+                    <div>
+                        <div class="detail-label">Best Time to Visit</div>
+                        <div class="detail-value"><%= temple.bestTime || 'October – March' %></div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon">🍽️</div>
+                    <div>
+                        <div class="detail-label">Local Prasad & Food</div>
+                        <div class="detail-value"><%= temple.food %></div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-icon">🏛️</div>
+                    <div>
+                        <div class="detail-label">State</div>
+                        <div class="detail-value"><%= temple.state %></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-row">
+                <% if (user) { %>
+                    <a href="/book" class="btn-primary">📿 Book Darshan</a>
+                <% } else { %>
+                    <a href="/login" class="btn-primary">📿 Book Darshan</a>
+                <% } %>
+                <a href="/explore" class="btn-outline">← All Temples</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
